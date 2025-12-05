@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="alipay:client" content="alipay">
+    <meta name="alipay:webview" content="true">
+    <meta name="alipay:renderer" content="webkit">
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="applicable-device" content="mobile">
+    <meta name="mobile-agent" content="format=html5;url=">
+    
+    <!-- 缓存控制 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- DNS预连接 -->
+    <link rel="dns-prefetch" href="//gw.alipayobjects.com">
+    <link rel="dns-prefetch" href="//your-cdn-domain.com">
+    <link rel="preconnect" href="https://gw.alipayobjects.com" crossorigin>
+
+  <title>在线咨询</title>
+  <style id="critical-css">    
+        * {
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overflow-scrolling: touch;
+            font-family: -apple-system, BlinkMacSystemFont, 
+                       'PingFang SC', 'Hiragino Sans GB', 
+                       'Microsoft YaHei', 'Helvetica Neue', 
+                       Helvetica, Arial, sans-serif;
+        }
+        
+        /* 加载动画 */
+        .alipay-splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0066cc 0%, #0044aa 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .splash-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .splash-logo img {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .splash-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
+        }
+        
+        .splash-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .splash-progress {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .splash-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: white;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .splash-tips {
+            position: absolute;
+            bottom: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        /* 主容器 */
+        #app {
+            width: 100%;
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        #app.loaded {
+            opacity: 1;
+        }
+        
+        /* 动画 */
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 错误页面 */
+        .error-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999998;
+            padding: 20px;
+        }
+        
+        .error-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .error-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        
+        .error-button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .error-button:hover {
+            background: #0052a3;
+            transform: translateY(-1px);
+        }
+        
+        /* 优化滚动 */
+        * {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* 修复支付宝输入框 */
+        input, textarea, select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border-radius: 0;
+            font-size: 16px; /* 防止iOS缩放 */
+        }
+        
+        /* 优化图片加载 */
+        img {
+            content-visibility: auto;
+        }
+        
+        /* 支付宝专用修复 */
+        [data-alipay="true"] body {
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* 加载进度动画 */
+        .progress-dots {
+            display: inline-block;
+            margin-left: 5px;
+        }
+        
+        .progress-dots span {
+            animation: dotPulse 1.4s infinite;
+            animation-fill-mode: both;
+            display: inline-block;
+        }
+        
+        .progress-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .progress-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes dotPulse {
+            0%, 80%, 100% { 
+                opacity: 0; 
+            }
+            40% { 
+                opacity: 1; 
+            }
+        }
+    </style>
+    
+    <!-- 预加载关键资源 -->
+    <link rel="preload" href="//your-cdn-domain.com/logo.png" as="image" type="image/png">
+    <link rel="preload" href="//your-cdn-domain.com/font.woff2" as="font" type="font/woff2" crossorigin>
+</head>
+
+<body>
+ <script>
+        (function() {
+            'use strict';
+            
+            // 检测支付宝环境
+            window.isAlipay = /Alipay/i.test(navigator.userAgent) || 
+                             /AliApp/i.test(navigator.userAgent) ||
+                             /AlipayClient/i.test(navigator.userAgent);
+            window.isUC = /UCBrowser/i.test(navigator.userAgent);
+            window.isQuark = /Quark/i.test(navigator.userAgent);
+            
+            console.log('支付宝环境检测:', {
+                isAlipay: window.isAlipay,
+                isUC: window.isUC,
+                isQuark: window.isQuark,
+                userAgent: navigator.userAgent
+            });
+            
+            if (window.isAlipay) {
+                document.documentElement.setAttribute('data-alipay', 'true');
+                console.log('检测到支付宝环境，启动优化');
+            }
+            
+            // 性能监控
+            const perf = {
+                startTime: Date.now(),
+                marks: {},
+                measures: {},
+                
+                mark: function(name) {
+                    this.marks[name] = Date.now();
+                    console.log(`[Performance] Mark: ${name}`);
+                },
+                
+                measure: function(name, startMark, endMark) {
+                    const start = this.marks[startMark] || this.startTime;
+                    const end = this.marks[endMark] || Date.now();
+                    this.measures[name] = end - start;
+                    console.log(`[Performance] ${name}: ${this.measures[name]}ms`);
+                },
+                
+                report: function() {
+                    console.log('[Performance Report]', this.measures);
+                }
+            };
+            
+            perf.mark('pageStart');
+            
+            // 支付宝JSBridge管理器
+            window.AlipayBridge = {
+                ready: false,
+                bridge: null,
+                
+                init: function() {
+                    return new Promise((resolve) => {
+                        if (window.AlipayJSBridge) {
+                            this.bridge = window.AlipayJSBridge;
+                            this.ready = true;
+                            console.log('AlipayJSBridge 已加载');
+                            this.setup();
+                            resolve(true);
+                        } else {
+                            document.addEventListener('AlipayJSBridgeReady', () => {
+                                this.bridge = window.AlipayJSBridge;
+                                this.ready = true;
+                                console.log('AlipayJSBridgeReady 事件触发');
+                                this.setup();
+                                resolve(true);
+                            });
+                            
+                            // 3秒超时
+                            setTimeout(() => {
+                                if (!this.ready) {
+                                    console.warn('AlipayJSBridge 加载超时');
+                                    resolve(false);
+                                }
+                            }, 3000);
+                        }
+                    });
+                },
+                
+                setup: function() {
+                    if (!this.ready || !this.bridge) return;
+                    
+                    try {
+                        // 设置标题
+                        this.bridge.call('setTitle', {
+                            title: '招联金融
+                        });
+                        
+                        // 设置导航栏颜色
+                        this.bridge.call('setNavigationBar', {
+                            backgroundColor: '#0066cc',
+                            frontColor: '#ffffff',
+                            animation: { duration: 0, timingFunc: 'linear' }
+                        });
+                        
+                        // 隐藏分享按钮
+                        this.bridge.call('setOptionButton', {
+                            show: false
+                        });
+                        
+                        // 禁用下拉刷新
+                        this.bridge.call('setCanPullDown', {
+                            canPullDown: false
+                        });
+                        
+                        // 监听返回按钮
+                        this.bridge.on('back', function() {
+                            if (window.history.length > 1) {
+                                window.history.back();
+                            } else {
+                                if (window.AlipayJSBridge) {
+                                    AlipayJSBridge.call('exitApp');
+                                }
+                            }
+                        });
+                        
+                        console.log('AlipayJSBridge 配置完成');
+                    } catch (error) {
+                        console.warn('AlipayJSBridge 配置失败:', error);
+                    }
+                },
+                
+                // 显示Toast
+                showToast: function(content, duration = 2000) {
+                    if (!this.ready || !this.bridge) {
+                        alert(content);
+                        return;
+                    }
+                    
+                    this.bridge.call('toast', {
+                        content: content,
+                        duration: duration
+                    });
+                },
+                
+                // 显示加载中
+                showLoading: function(content = '加载中...') {
+                    if (!this.ready || !this.bridge) return;
+                    
+                    this.bridge.call('showLoading', {
+                        text: content
+                    });
+                },
+                
+                // 隐藏加载中
+                hideLoading: function() {
+                    if (!this.ready || !this.bridge) return;
+                    
+                    this.bridge.call('hideLoading');
+                },
+                
+                // 分享
+                share: function(config) {
+                    if (!this.ready || !this.bridge) return;
+                    
+                    this.bridge.call('setShareInfo', {
+                        title: config.title || '招联金融',
+                        desc: config.desc || '招联金融',
+                        image: config.image || '',
+                        url: config.url || window.location.href
+                    });
+                }
+            };
+            
+            // 加载管理器
+            class AlipayLoader {
+                constructor() {
+                    this.progress = 0;
+                    this.maxProgress = 100;
+                    this.steps = [
+                        { name: '初始化', weight: 10 },
+                        { name: '加载资源', weight: 30 },
+                        { name: '启动应用', weight: 30 },
+                        { name: '完成加载', weight: 30 }
+                    ];
+                    this.currentStep = 0;
+                    this.timeout = null;
+                    this.loadStartTime = Date.now();
+                }
+                
+                // 启动加载
+                start() {
+                    console.log('支付宝加载管理器启动');
+                    this.updateProgress(5, '初始化中...');
+                    
+                    // 设置超时监控
+                    this.setupTimeout();
+                    
+                    // 执行加载步骤
+                    this.executeSteps();
+                }
+                
+                // 执行步骤
+                async executeSteps() {
+                    for (let i = 0; i < this.steps.length; i++) {
+                        this.currentStep = i;
+                        const step = this.steps[i];
+                        
+                        this.updateProgress(
+                            this.progress + (step.weight * 0.3),
+                            `${step.name}...`
+                        );
+                        
+                        try {
+                            await this.executeStep(step);
+                            this.updateProgress(
+                                this.progress + (step.weight * 0.7),
+                                `${step.name}完成`
+                            );
+                        } catch (error) {
+                            console.error(`步骤执行失败: ${step.name}`, error);
+                            this.handleError(`步骤执行失败: ${step.name}`, error);
+                            break;
+                        }
+                        
+                        // 每个步骤间隔
+                        await this.delay(100);
+                    }
+                    
+                    // 所有步骤完成
+                    this.complete();
+                }
+                
+                // 执行单个步骤
+                async executeStep(step) {
+                    switch(step.name) {
+                        case '初始化':
+                            return this.initStep();
+                        case '加载资源':
+                            return this.loadResourcesStep();
+                        case '启动应用':
+                            return this.startAppStep();
+                        case '完成加载':
+                            return this.finishStep();
+                        default:
+                            return Promise.resolve();
+                    }
+                }
+                
+                // 初始化步骤
+                async initStep() {
+                    // 初始化支付宝环境
+                    if (window.isAlipay) {
+                        await AlipayBridge.init();
+                    }
+                    
+                    // 设置页面
+                    this.setupPage();
+                    
+                    // 预加载关键资源
+                    await this.preloadCriticalResources();
+                    
+                    return Promise.resolve();
+                }
+                
+                // 设置页面
+                setupPage() {
+                    // 防止页面滚动
+                    document.body.style.overflow = 'hidden';
+                    document.documentElement.style.overflow = 'hidden';
+                    
+                    // 修复支付宝滚动问题
+                    document.addEventListener('touchmove', function(e) {
+                        e.preventDefault();
+                    }, { passive: false });
+                    
+                    // 修复输入框在支付宝中的问题
+                    this.fixInputIssues();
+                    
+                    // 设置页面标题
+                    document.title = '中国移动客户端';
+                }
+                
+                // 修复输入框问题
+                fixInputIssues() {
+                    // 支付宝中 input 的修复
+                    const inputs = document.querySelectorAll('input, textarea, select');
+                    inputs.forEach(input => {
+                        input.style.fontSize = '16px'; // 防止iOS缩放
+                        input.style.webkitAppearance = 'none';
+                        input.style.appearance = 'none';
+                    });
+                    
+                    // 修复 focus 状态
+                    document.addEventListener('focusin', function() {
+                        document.body.style.height = '100%';
+                    });
+                    
+                    document.addEventListener('focusout', function() {
+                        setTimeout(() => {
+                            window.scrollTo(0, 0);
+                        }, 100);
+                    });
+                }
+                
+                // 预加载关键资源
+                async preloadCriticalResources() {
+                    const resources = [
+                        // 关键图片
+                        { url: '/logo.png', type: 'image' },
+                        { url: '/favicon.ico', type: 'image' },
+                        // 字体
+                        { url: '/fonts/font.woff2', type: 'font' }
+                    ];
+                    
+                    const promises = resources.map(resource => {
+                        return new Promise((resolve) => {
+                            const link = document.createElement('link');
+                            link.rel = 'preload';
+                            link.as = resource.type;
+                            link.href = resource.url;
+                            link.crossOrigin = 'anonymous';
+                            link.onload = () => resolve();
+                            link.onerror = () => resolve(); // 即使失败也继续
+                            document.head.appendChild(link);
+                        });
+                    });
+                    
+                    await Promise.all(promises);
+                }
+                
+                // 加载资源步骤
+                async loadResourcesStep() {
+                    // 加载主应用JS
+                    await this.loadAppScript();
+                    
+                    // 加载CSS
+                    await this.loadStyles();
+                    
+                    return Promise.resolve();
+                }
+                
+                // 加载应用脚本
+                loadAppScript() {
+                    return new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = '/static/js/main.js';
+                        script.async = true;
+                        script.defer = true;
+                        script.crossOrigin = 'anonymous';
+                        
+                        script.onload = () => {
+                            console.log('应用脚本加载完成');
+                            resolve();
+                        };
+                        
+                        script.onerror = (error) => {
+                            console.error('应用脚本加载失败:', error);
+                            this.handleError('脚本加载失败', error);
+                            reject(error);
+                        };
+                        
+                        document.head.appendChild(script);
+                    });
+                }
+                
+                // 加载样式
+                loadStyles() {
+                    return new Promise((resolve) => {
+                        const link = document.createElement('link');
+                        link.rel = 'stylesheet';
+                        link.href = '/static/css/main.css';
+                        
+                        link.onload = () => {
+                            console.log('CSS加载完成');
+                            resolve();
+                        };
+                        
+                        link.onerror = () => {
+                            console.warn('CSS加载失败，继续执行');
+                            resolve(); // CSS失败不阻止应用运行
+                        };
+                        
+                        document.head.appendChild(link);
+                    });
+                }
+                
+                // 启动应用步骤
+                async startAppStep() {
+                    // 等待应用初始化
+                    await this.waitForAppReady();
+                    return Promise.resolve();
+                }
+                
+                // 等待应用就绪
+                waitForAppReady() {
+                    return new Promise((resolve) => {
+                        const maxWait = 10000; // 10秒超时
+                        const startTime = Date.now();
+                        
+                        const checkInterval = setInterval(() => {
+                            if (window.app && window.app.isReady) {
+                                clearInterval(checkInterval);
+                                resolve();
+                            } else if (Date.now() - startTime > maxWait) {
+                                clearInterval(checkInterval);
+                                console.warn('应用启动超时');
+                                resolve(); // 超时也继续
+                            }
+                        }, 100);
+                    });
+                }
+                
+                // 完成步骤
+                finishStep() {
+                    return Promise.resolve();
+                }
+                
+                // 更新进度
+                updateProgress(value, message) {
+                    this.progress = Math.min(this.maxProgress, Math.max(0, value));
+                    
+                    // 更新UI
+                    const progressBar = document.getElementById('progress-bar');
+                    const loadingText = document.getElementById('loading-text');
+                    const loadingTips = document.getElementById('loading-tips');
+                    
+                    if (progressBar) {
+                        progressBar.style.width = this.progress + '%';
+                    }
+                    
+                    if (loadingText) {
+                        loadingText.textContent = message;
+                    }
+                    
+                    if (loadingTips) {
+                        const tips = [
+                            '正在优化加载速度...',
+                            '准备资源文件...',
+                            '初始化应用程序...',
+                            '连接服务器...',
+                            '最后一步，请稍候...'
+                        ];
+                        const tipIndex = Math.floor(this.progress / 20);
+                        if (tips[tipIndex]) {
+                            loadingTips.textContent = tips[tipIndex];
+                        }
+                    }
+                    
+                    console.log(`[进度: ${this.progress}%] ${message}`);
+                }
+                
+                // 完成加载
+                complete() {
+                    console.log('加载完成');
+                    perf.mark('loadComplete');
+                    perf.measure('totalLoadTime', 'pageStart', 'loadComplete');
+                    perf.report();
+                    
+                    this.updateProgress(100, '加载完成！');
+                    
+                    // 隐藏加载界面
+                    setTimeout(() => {
+                        this.hideLoadingScreen();
+                        
+                        // 显示应用
+                        this.showApp();
+                        
+                        // 发送加载完成事件
+                        window.dispatchEvent(new CustomEvent('alipayLoaded'));
+                        
+                        // 清除超时计时器
+                        if (this.timeout) {
+                            clearTimeout(this.timeout);
+                        }
+                    }, 500);
+                }
+                
+                // 隐藏加载界面
+                hideLoadingScreen() {
+                    const loadingScreen = document.getElementById('alipay-loading');
+                    if (loadingScreen) {
+                        loadingScreen.style.opacity = '0';
+                        loadingScreen.style.transition = 'opacity 0.5s ease';
+                        
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                        }, 500);
+                    }
+                }
+                
+                // 显示应用
+                showApp() {
+                    const app = document.getElementById('app');
+                    if (app) {
+                        app.style.opacity = '1';
+                        app.style.transition = 'opacity 0.5s ease';
+                    }
+                    
+                    // 恢复滚动
+                    document.body.style.overflow = 'auto';
+                    document.documentElement.style.overflow = 'auto';
+                }
+                
+                // 设置超时
+                setupTimeout() {
+                    // 10秒超时
+                    this.timeout = setTimeout(() => {
+                        if (this.progress < 100) {
+                            console.warn('加载超时，尝试恢复');
+                            this.handleTimeout();
+                        }
+                    }, 10000);
+                    
+                    // 20秒强制超时
+                    setTimeout(() => {
+                        if (this.progress < 100) {
+                            console.error('加载严重超时');
+                            this.handleError('加载超时，请检查网络连接');
+                        }
+                    }, 20000);
+                }
+                
+                // 处理超时
+                handleTimeout() {
+                    // 尝试重试
+                    this.updateProgress(80, '网络较慢，正在重试...');
+                    
+                    // 重试加载
+                    setTimeout(() => {
+                        this.retryLoad();
+                    }, 1000);
+                }
+                
+                // 重试加载
+                retryLoad() {
+                    console.log('尝试重新加载');
+                    
+                    // 重新加载资源
+                    this.loadAppScript().then(() => {
+                        this.updateProgress(90, '重试成功，继续加载...');
+                        setTimeout(() => this.complete(), 1000);
+                    }).catch(() => {
+                        this.handleError('重试失败，请检查网络');
+                    });
+                }
+                
+                // 处理错误
+                handleError(message, error) {
+                    console.error('加载错误:', message, error);
+                    
+                    // 显示错误页面
+                    this.showError(message, error);
+                    
+                    // 上报错误
+                    this.reportError(error);
+                }
+                
+                // 显示错误
+                showError(message, error) {
+                    const loadingScreen = document.getElementById('alipay-loading');
+                    const errorScreen = document.getElementById('error-screen');
+                    const errorTitle = document.getElementById('error-title');
+                    const errorMessage = document.getElementById('error-message');
+                    
+                    if (loadingScreen) loadingScreen.style.display = 'none';
+                    if (errorScreen) errorScreen.style.display = 'flex';
+                    if (errorTitle) errorTitle.textContent = '加载失败';
+                    if (errorMessage) errorMessage.textContent = message;
+                    
+                    // 重试按钮
+                    const retryBtn = document.getElementById('retry-btn');
+                    if (retryBtn) {
+                        retryBtn.onclick = () => {
+                            window.location.reload();
+                        };
+                    }
+                    
+                    // 在浏览器中打开按钮
+                    const openBrowserBtn = document.getElementById('open-browser-btn');
+                    if (openBrowserBtn) {
+                        openBrowserBtn.onclick = () => {
+                            if (window.isAlipay && window.AlipayJSBridge) {
+                                AlipayJSBridge.call('pushWindow', {
+                                    url: window.location.href
+                                });
+                            } else {
+                                window.open(window.location.href, '_blank');
+                            }
+                        };
+                    }
+                }
+                
+                // 上报错误
+                reportError(error) {
+                    const errorData = {
+                        type: 'load_error',
+                        message: error?.message || 'Unknown error',
+                        url: window.location.href,
+                        userAgent: navigator.userAgent,
+                        timestamp: Date.now(),
+                        isAlipay: window.isAlipay
+                    };
+                    
+                    // 发送错误报告
+                    if (navigator.sendBeacon) {
+                        navigator.sendBeacon('/api/error', JSON.stringify(errorData));
+                    }
+                }
+                
+                // 延迟函数
+                delay(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+            }
+            
+            // 网络状态监控
+            function setupNetworkMonitor() {
+                function updateNetworkStatus() {
+                    const isOnline = navigator.onLine;
+                    const loadingText = document.getElementById('loading-text');
+                    
+                    if (!isOnline && loadingText) {
+                        loadingText.innerHTML = '网络已断开，请检查网络连接';
+                        loadingText.style.color = '#ff6b6b';
+                    } else if (isOnline && loadingText) {
+                        loadingText.style.color = 'white';
+                    }
+                }
+                
+                window.addEventListener('online', updateNetworkStatus);
+                window.addEventListener('offline', updateNetworkStatus);
+                updateNetworkStatus(); // 初始检测
+            }
+            
+            // 页面可见性监控
+            function setupVisibilityMonitor() {
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) {
+                        console.log('页面重新可见');
+                        window.dispatchEvent(new CustomEvent('pageVisible'));
+                    }
+                });
+            }
+            
+            // 防止支付宝缓存
+            function preventAlipayCache() {
+                if (window.isAlipay) {
+                    // 添加时间戳防止缓存
+                    const links = document.querySelectorAll('link[rel="stylesheet"]');
+                    links.forEach(link => {
+                        if (!link.href.includes('?')) {
+                            link.href = link.href + '?t=' + Date.now();
+                        }
+                    });
+                    
+                    // 添加脚本防缓存
+                    const scripts = document.querySelectorAll('script[src]');
+                    scripts.forEach(script => {
+                        if (!script.src.includes('?') && !script.src.includes('alipay')) {
+                            script.src = script.src + '?t=' + Date.now();
+                        }
+                    });
+                    
+                    // 禁用浏览器缓存
+                    window.addEventListener('pageshow', function(event) {
+                        if (event.persisted) {
+                            window.location.reload();
+                        }
+                    });
+                }
+            }
+            
+            // 修复支付宝滚动
+            function fixAlipayScroll() {
+                if (!window.isAlipay) return;
+                
+                // 修复iOS弹性滚动
+                document.body.style.overflow = 'hidden';
+                document.body.style.height = '100%';
+                
+                // 修复输入框聚焦滚动
+                const inputs = document.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                        setTimeout(() => {
+                            this.scrollIntoViewIfNeeded();
+                        }, 300);
+                    });
+                });
+            }
+            
+            // 启动支付宝优化
+            function startAlipayOptimization() {
+                console.log('启动支付宝优化');
+                
+                // 防止缓存
+                preventAlipayCache();
+                
+                // 设置网络监控
+                setupNetworkMonitor();
+                
+                // 设置可见性监控
+                setupVisibilityMonitor();
+                
+                // 修复滚动
+                fixAlipayScroll();
+                
+                // 启动加载器
+                const loader = new AlipayLoader();
+                window.alipayLoader = loader;
+                
+                // 开始加载
+                setTimeout(() => {
+                    loader.start();
+                }, 100);
+            }
+            
+            // 初始化
+            function init() {
+                console.log('支付宝优化脚本初始化');
+                perf.mark('scriptStart');
+                
+                // 检查文档状态
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => {
+                        perf.mark('DOMContentLoaded');
+                        startAlipayOptimization();
+                    });
+                } else {
+                    perf.mark('DOMContentLoaded');
+                    startAlipayOptimization();
+                }
+                
+                // 窗口加载完成
+                window.addEventListener('load', () => {
+                    perf.mark('windowLoad');
+                });
+                
+                // 错误处理
+                window.addEventListener('error', function(event) {
+                    console.error('全局错误:', event.error);
+                    
+                    if (window.alipayLoader) {
+                        window.alipayLoader.handleError('应用运行错误', event.error);
+                    }
+                    
+                    // 阻止默认错误处理
+                    event.preventDefault();
+                }, true);
+                
+                window.addEventListener('unhandledrejection', function(event) {
+                    console.error('未处理的Promise拒绝:', event.reason);
+                    
+                    if (window.alipayLoader) {
+                        window.alipayLoader.handleError('异步错误', event.reason);
+                    }
+                });
+            }
+            
+            // 立即执行
+            init();
+            
+        })();
+        
+        // 支付宝JSBridge补丁
+        (function() {
+            if (!window.AlipayJSBridge) {
+                window.AlipayJSBridge = {
+                    call: function(method, params, callback) {
+                        console.log('[AlipayJSBridge Patch]', method, params);
+                        if (callback && typeof callback === 'function') {
+                            callback({ success: false, message: 'AlipayJSBridge not available' });
+                        }
+                    },
+                    on: function(event, callback) {
+                        console.log('[AlipayJSBridge Patch] 监听事件:', event);
+                    }
+                };
+                
+                console.log('使用AlipayJSBridge补丁');
+            }
+        })();
+    </script>
+  <script type="text/javascript">
+    function parse(query) {
+      var qs = {};
+      var i = query.indexOf('?');
+      if (i < 0 && query.indexOf('=') < 0) {
+        return qs;
+      } else if (i >= 0) {
+        query = query.substring(i + 1);
+      }
+      var parts = query.split('&');
+      for (var n = 0; n < parts.length; n++) {
+        var part = parts[n];
+        var key = part.split('=')[0];
+        var val = part.split('=')[1];
+        key = key.toLowerCase();
+        if (typeof qs[key] === 'undefined') {
+          qs[key] = decodeURIComponent(val);
+        } else if (typeof qs[key] === 'string') {
+          var arr = [qs[key], decodeURIComponent(val)];
+          qs[key] = arr;
+        } else {
+          qs[key].push(decodeURIComponent(val));
+        }
+      }
+      return qs;
+    }
+    function init() {
+      (function (m, ei, q, i, a, j, s) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        (j = ei.createElement(q)), (s = ei.getElementsByTagName(q)[0]);
+        j.async = true;
+        j.charset = 'UTF-8';
+        j.src = 'https://static.meiqia.com/widget/loader.js';
+        s.parentNode.insertBefore(j, s);
+      })(window, document, 'script', '_MEIQIA');
+      var data = parse(window.location.search);
+      var entId = data.entid || data.eid;
+      if (Object.prototype.toString.call(entId) === '[object Array]') {
+        entId = +entId[0];
+      } else {
+        entId = +entId;
+      }
+      _MEIQIA('entId', 'e7cf42359895bd8d1e56e9c72974e94f' || entId);
+      _MEIQIA('standalone', function (config) {
+        if (config.color) {
+          document.body.style['background-color'] = '#' + config.color;
+        }
+        if (config.url) {
+          document.body.style['background-image'] = 'url(' + config.url + ')';
+          document.body.style['background-repeat'] = 'no-repeat';
+          document.body.style['background-size'] = '100% 100%';
+        }
+      });
+      _MEIQIA('withoutBtn');
+      if (data.metadata) {
+        try {
+          var metadata = JSON.parse(data.metadata);
+          _MEIQIA('metadata', metadata);
+        } catch (e) { }
+      }
+      if (data.encryptedmetadata) {
+        _MEIQIA('encryptedmetadata', data.encryptedmetadata);
+      }
+      if (data.requestperms) {
+        localStorage.setItem('requestperms', data.requestperms);
+      }
+      if (data.language) {
+        if (data.languagelocal !== 'true') {
+          _MEIQIA('language', data.language);
+        }
+      }
+      if (data.languagelocal === 'true') {
+        _MEIQIA('languageLocal', true);
+      }
+      if (data.subsource) {
+        _MEIQIA('subSource', data.subsource);
+      }
+      if (data.fallback) {
+        _MEIQIA('fallback', +data.fallback);
+      }
+      if (data.socketprotocol) {
+        _MEIQIA('socketProtocol', data.socketprotocol);
+      }
+      _MEIQIA('handleParams', data);
+      if (data.clientid) {
+        _MEIQIA('clientId', data.clientid);
+      }
+      if (data.agentid || data.groupid) {
+        _MEIQIA('assign', { agentToken: data.agentid || null, groupToken: data.groupid || null });
+      }
+      _MEIQIA('showPanel', {
+        greeting: data.greeting || '',
+        agentToken: data.agentid || null,
+        groupToken: data.groupid || null
+      });
+    }
+    init();
+    </script>
+    </body >
+  </html >
